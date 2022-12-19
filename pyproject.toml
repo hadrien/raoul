@@ -5,8 +5,13 @@ description = ""
 authors = ["Hadrien David <hadrien@ectobal.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+raoul = 'raoul_client:run'
+
 [tool.poetry.dependencies]
 python = "3.9.2"
+typer = "^0.7.0"
+structlog = "^22.3.0"
 fastapi = "^0.88.0"
 hypercorn = "^0.14.3"
 
@@ -20,6 +25,7 @@ pylama = "^8.4.1"
 isort = "^5.11.3"
 coverage = "^6.5.0"
 pytest-watch = {git = "https://github.com/aldencolerain/pytest-watch.git", rev = "fix-toml-config"}
+pdbpp = "^0.10.3"
 
 [build-system]
 requires = ["poetry-core"]
