@@ -22,7 +22,8 @@ def new_socket_address():
     return path
 
 
-def handle_video_stream(socket_address):
+def handle_video_stream(socket_address, consume):
+    log.debug("Creating unix socket", socket_address=socket_address)
     video_stream = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     video_stream.bind(socket_address)
     video_stream.listen(1)
@@ -35,6 +36,7 @@ def handle_video_stream(socket_address):
             data = connection.recv(BUFFER_SIZE)
             if data:
                 log.debug("Receiving", len=len(data))
+                consume(data)
             else:
                 break
 
@@ -42,6 +44,15 @@ def handle_video_stream(socket_address):
         log.info("End")
         connection.close()
         video_stream.close()
+
+
+class Consumer:
+    def __init__(self):
+        self.ws = websocket.WebSocket()
+        self.ws.connect("ws://C02CM2JHMD6P-Hadrien-David.local:8000/ws")
+
+    def __call__(self, data: bytes):
+        self.ws.send_binary(data)
 
 
 def run_libcamera_vid(socket_address):
@@ -65,7 +76,8 @@ def run_libcamera_vid(socket_address):
 def run():
     executor = futures.ThreadPoolExecutor(max_workers=1)
     socket_address = new_socket_address()
-    executor.submit(handle_video_stream, socket_address)
+
+    executor.submit(handle_video_stream, socket_address, Consumer())
     run_libcamera_vid(socket_address)
 
 
